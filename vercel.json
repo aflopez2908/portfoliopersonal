@@ -2,10 +2,18 @@
     "rewrites": [
       {
         "source": "/links/:path*",
-        "destination": "https://fr-links.vercel.app/:path*" 
+        "destination": "https://fr-links.vercel.app/:path*"
       },
       {
-        "source": "/:path((?!links).*)",
+        "source": "/assets/:path*",
+        "destination": "https://fr-links.vercel.app/assets/:path*"
+      },
+      {
+        "source": "/css/:path*",   
+        "destination": "https://fr-links.vercel.app/css/:path*"
+      },
+      {
+        "source": "/:path((?!links|assets|css).*)", 
         "destination": "/:path*"
       }
     ]
