@@ -1,0 +1,12 @@
+{
+    "rewrites": [
+      {
+        "source": "/links/:path*",
+        "destination": "https://fr-links.vercel.app/:path*"
+      },
+      {
+        "source": "/:path((?!links).*)",
+        "destination": "/:path*"
+      }
+    ]
+  }
