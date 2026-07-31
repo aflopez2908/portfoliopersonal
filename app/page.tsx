@@ -665,17 +665,10 @@ export default function Portfolio() {
               transition={{ delay: 1, duration: 0.6 }}
               className="flex flex-col sm:flex-row gap-4 justify-center items-center"
             >
-              <motion.button
-                onClick={
-                  () => {
-                    const link = document.createElement("a")
-                    link.href = "/cv.pdf"
-                    link.download = "Felipe_Russi_CV.pdf"
-                    document.body.appendChild(link)
-                    link.click()
-                    document.body.removeChild(link)
-                  }
-                }
+              <motion.a
+                href="/cv.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
                 className={`group relative px-8 py-4 rounded-full text-lg font-bold flex items-center gap-2 overflow-hidden text-white ${
@@ -684,17 +677,16 @@ export default function Portfolio() {
                     : "bg-gradient-to-r from-blue-600 to-blue-700 shadow-lg"
                 }`}
               >
-                
                 <Download size={20} />
                 {t("getCv")}
-                
+
                 <motion.div
                   className="absolute inset-0 bg-white/20 rounded-full"
                   initial={{ scale: 0 }}
                   whileHover={{ scale: 1 }}
                   transition={{ duration: 0.3 }}
-                ></motion.div>
-              </motion.button>
+                />
+              </motion.a>
             </motion.div>
           </motion.div>
         </div>
