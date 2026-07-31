@@ -1,139 +1,271 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
-import { gsap } from "gsap"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { forwardRef, useEffect, useState } from "react"
+import { motion } from "framer-motion"
 
-gsap.registerPlugin(ScrollTrigger)
+type Language = "en" | "es"
 
-interface ExperienceData {
+interface ExperienceItem {
   company: string
   period: string
+  role: string
   description: string
   technologies: string[]
 }
 
-const experiences: ExperienceData[] = [
-  {
-    company: "Alfa GL",
-    period: "2024",
-    description:
-      "Diseñé, desarrollé y di soporte a una aplicación interna de la empresa, optimizando procesos financieros y mejorando la experiencia del usuario. Implementé nuevas funcionalidades, solucioné errores y mejoré el rendimiento de la aplicación. Participé activamente en la documentación técnica y en la formación de usuarios internos, abordando tanto el backend como el frontend.",
-    technologies: ["Angular", "JavaScript", "Node.js", "Database", "HTML5", "CSS3"],
-  },
-  {
-    company: "Teleperformance",
-    period: "2020",
-    description:
-      "Se encargó de gestionar bases de datos para optimizar la información de los clientes, asegurando su precisión y accesibilidad. Destacó por su habilidad en la atención personalizada, utilizando escucha activa para identificar las necesidades de los clientes y proporcionar soluciones técnicas efectivas en el ámbito del software.",
-    technologies: ["Database"],
-  },
-  {
-    company: "Freelance",
-    period: "Currently",
-    description:
-      "Especializado en el análisis y posicionamiento de marca para ofrecer soluciones tecnológicas personalizadas a los clientes. Destaca por el diseño de modelos en Figma para planificar de manera estratégica las aplicaciones, asegurando una experiencia de usuario eficiente y alineada con los objetivos del cliente.",
-    technologies: ["Angular", "JavaScript", "Node.js", "Database", "HTML5", "CSS3", "React", "Python"],
-  },
-]
+interface ExperienceProps {
+  language: Language
+  isDarkMode: boolean
+  technologiesLabel: string
+  workExperienceLabel: string
+}
 
-export default function Experience() {
+const experiencesByLanguage: Record<Language, ExperienceItem[]> = {
+  en: [
+    {
+      company: "Alfa GL",
+      period: "2024",
+      role: "Software Developer",
+      description:
+        "Designed, developed and supported an internal company application, optimizing financial processes and improving user experience. Implemented new functionalities, solved errors and improved application performance.",
+      technologies: ["Angular", "JavaScript", "Node.js", "Database", "HTML5", "CSS3"],
+    },
+    {
+      company: "Teleperformance",
+      period: "2020",
+      role: "Database Manager",
+      description:
+        "Managed databases to optimize customer information, ensuring accuracy and accessibility. Stood out for personalized attention skills, using active listening to identify customer needs.",
+      technologies: ["Database"],
+    },
+    {
+      company: "Freelance",
+      period: "Currently",
+      role: "Full Stack Developer",
+      description:
+        "Specialized in brand analysis and positioning to offer personalized technological solutions to clients. Stands out for designing models in Figma to strategically plan applications.",
+      technologies: ["Angular", "JavaScript", "Node.js", "Database", "HTML5", "CSS3", "React", "Python"],
+    },
+    {
+      company: "One Bot center",
+      period: "Currently",
+      role: "Full Stack Developer",
+      description:
+        "Specialized in brand analysis and positioning to offer personalized technological solutions to clients. Stands out for designing models in Figma to strategically plan applications.",
+      technologies: ["Angular", "JavaScript", "Node.js", "Database", "HTML5", "CSS3", "React", "Python"],
+    },
+  ],
+  es: [
+    {
+      company: "Alfa GL",
+      period: "2024",
+      role: "Desarrollador de Software",
+      description:
+        "Diseñé, desarrollé y di soporte a una aplicación interna de la empresa, optimizando procesos financieros y mejorando la experiencia del usuario. Implementé nuevas funcionalidades, solucioné errores y mejoré el rendimiento de la aplicación.",
+      technologies: ["Angular", "JavaScript", "Node.js", "Database", "HTML5", "CSS3"],
+    },
+    {
+      company: "Teleperformance",
+      period: "2020",
+      role: "Gestor de Base de Datos",
+      description:
+        "Se encargó de gestionar bases de datos para optimizar la información de los clientes, asegurando su precisión y accesibilidad. Destacó por su habilidad en la atención personalizada, utilizando escucha activa para identificar las necesidades de los clientes.",
+      technologies: ["Database"],
+    },
+    {
+      company: "Freelance",
+      period: "Actualmente",
+      role: "Desarrollador Full Stack",
+      description:
+        "Especializado en el análisis y posicionamiento de marca para ofrecer soluciones tecnológicas personalizadas a los clientes. Destaca por el diseño de modelos en Figma para planificar de manera estratégica las aplicaciones.",
+      technologies: ["Angular", "JavaScript", "Node.js", "Database", "HTML5", "CSS3", "React", "Python"],
+    },
+    {
+      company: "One Bot center",
+      period: "Actualmente",
+      role: "Desarrollador Full Stack",
+      description:
+        "Especializado en el análisis y posicionamiento de marca para ofrecer soluciones tecnológicas personalizadas a los clientes. Destaca por el diseño de modelos en Figma para planificar de manera estratégica las aplicaciones.",
+      technologies: ["Angular", "JavaScript", "Node.js", "Database", "HTML5", "CSS3", "React", "Python"],
+    },
+  ],
+}
+
+const fadeInUp = {
+  initial: { opacity: 0, y: 60 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6, ease: "easeOut" },
+}
+
+const staggerContainer = {
+  animate: {
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+}
+
+const scaleIn = {
+  initial: { opacity: 0, scale: 0.8 },
+  animate: { opacity: 1, scale: 1 },
+  transition: { duration: 0.5, ease: "easeOut" },
+}
+
+function ExperienceSection(
+  { language, isDarkMode, technologiesLabel, workExperienceLabel }: ExperienceProps,
+  ref: React.ForwardedRef<HTMLElement>,
+) {
   const [activeExperience, setActiveExperience] = useState(0)
-  const sectionRef = useRef<HTMLDivElement>(null)
-  const titleRef = useRef<HTMLHeadingElement>(null)
-  const contentRef = useRef<HTMLDivElement>(null)
+  const experiences = experiencesByLanguage[language]
 
   useEffect(() => {
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: sectionRef.current,
-        start: "top 80%",
-        end: "bottom 20%",
-        toggleActions: "play none none reverse",
-      },
-    })
-
-    tl.fromTo(titleRef.current, { opacity: 0, y: 100 }, { opacity: 1, y: 0, duration: 1, ease: "power3.out" }).fromTo(
-      contentRef.current,
-      { opacity: 0, y: 100 },
-      { opacity: 1, y: 0, duration: 1, ease: "power3.out" },
-      "-=0.5",
-    )
-  }, [])
-
-  useEffect(() => {
-    // Animate content change
-    gsap.fromTo(".experience-content", { opacity: 0, x: 50 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" })
-  }, [activeExperience])
-
-  const getTechIcon = (tech: string) => {
-    const icons: { [key: string]: string } = {
-      Angular: "🅰️",
-      JavaScript: "🟨",
-      "Node.js": "🟢",
-      Database: "🗄️",
-      HTML5: "🟧",
-      CSS3: "🔷",
-      React: "⚛️",
-      Python: "🐍",
-    }
-    return icons[tech] || "💻"
-  }
+    setActiveExperience(0)
+  }, [language])
 
   return (
-    <div ref={sectionRef} className="min-h-screen flex items-center py-20 bg-black">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 ref={titleRef} className="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-16 text-center">
-          WORK
-          <span className="block text-gray-400">EXPERIENCE</span>
-        </h2>
+    <section
+      id="experience"
+      ref={ref}
+      className={`py-20 px-4 transition-all duration-500 ${isDarkMode ? "bg-black/20" : "bg-gray-50"}`}
+    >
+      <div className="max-w-6xl mx-auto">
+        <motion.h2
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className={`text-5xl md:text-6xl font-black mb-12 text-center transition-all duration-500 ${
+            isDarkMode ? "text-white" : "text-gray-900"
+          }`}
+        >
+          {workExperienceLabel.split(" ")[0]}
+          <br />
+          <span
+            className={`transition-all duration-500 ${
+              isDarkMode
+                ? "bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent"
+                : "bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent"
+            }`}
+          >
+            {workExperienceLabel.split(" ")[1]}
+          </span>
+        </motion.h2>
 
-        <div ref={contentRef} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Experience Buttons */}
-          <div className="space-y-4">
+        <motion.div
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: true, amount: 0.3 }}
+          variants={staggerContainer}
+          className="grid md:grid-cols-2 gap-12"
+        >
+          <motion.div variants={fadeInUp} className="space-y-4">
             {experiences.map((exp, index) => (
-              <button
-                key={index}
+              <motion.button
+                key={exp.company + exp.period}
+                variants={scaleIn}
+                whileHover={{ scale: 1.02, x: 5 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => setActiveExperience(index)}
-                className={`w-full text-left p-6 rounded-lg transition-all duration-300 transform hover:scale-105 ${
+                className={`w-full text-left p-6 rounded-xl transition-all duration-300 ${
                   activeExperience === index
-                    ? "bg-white text-black shadow-2xl"
-                    : "bg-gray-800 text-white hover:bg-gray-700"
+                    ? isDarkMode
+                      ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg"
+                      : "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg"
+                    : isDarkMode
+                      ? "bg-white/10 hover:bg-white/20"
+                      : "bg-white hover:bg-blue-50 shadow-md border border-gray-200"
                 }`}
               >
-                <h3 className="text-xl font-bold">{exp.company}</h3>
-                <p className="text-sm opacity-70">{exp.period}</p>
-              </button>
+                <h3
+                  className={`text-xl font-bold transition-colors duration-500 ${
+                    activeExperience === index ? "text-white" : isDarkMode ? "text-white" : "text-gray-900"
+                  }`}
+                >
+                  {exp.company}
+                </h3>
+                <p
+                  className={`font-medium transition-colors duration-500 ${
+                    activeExperience === index ? "text-white/80" : isDarkMode ? "text-white/70" : "text-gray-600"
+                  }`}
+                >
+                  {exp.period}
+                </p>
+              </motion.button>
             ))}
-          </div>
+          </motion.div>
 
-          {/* Experience Content */}
-          <div className="lg:col-span-2 experience-content">
-            <div className="bg-gray-900 p-8 rounded-lg">
-              <h3 className="text-3xl font-bold text-white mb-4">
-                {experiences[activeExperience].company} - {experiences[activeExperience].period}
-              </h3>
+          <motion.div
+            variants={fadeInUp}
+            className={`backdrop-blur-sm p-8 rounded-xl transition-all duration-500 ${
+              isDarkMode ? "bg-white/10" : "bg-white shadow-lg border border-gray-200"
+            }`}
+          >
+            <motion.h3
+              key={activeExperience}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3 }}
+              className={`text-2xl font-bold mb-2 transition-colors duration-500 ${
+                isDarkMode ? "text-white" : "text-gray-900"
+              }`}
+            >
+              {experiences[activeExperience].role}
+            </motion.h3>
 
-              <p className="text-gray-300 text-lg leading-relaxed mb-8">{experiences[activeExperience].description}</p>
+            <motion.h4
+              key={`${activeExperience}-company`}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+              className={`mb-4 font-medium transition-colors duration-500 ${
+                isDarkMode ? "text-blue-300" : "text-blue-600"
+              }`}
+            >
+              {experiences[activeExperience].company} - {experiences[activeExperience].period}
+            </motion.h4>
 
-              <div>
-                <h4 className="text-xl font-semibold text-white mb-4">Technologies</h4>
-                <div className="flex flex-wrap gap-3">
-                  {experiences[activeExperience].technologies.map((tech, index) => (
-                    <span
-                      key={index}
-                      className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full text-white text-sm"
-                    >
-                      <span className="text-lg">{getTechIcon(tech)}</span>
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+            <motion.p
+              key={`${activeExperience}-desc`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.2 }}
+              className={`mb-6 leading-relaxed transition-colors duration-500 ${
+                isDarkMode ? "text-white/80" : "text-gray-700"
+              }`}
+            >
+              {experiences[activeExperience].description}
+            </motion.p>
+
+            <motion.h5
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3, delay: 0.3 }}
+              className={`text-lg font-bold mb-4 transition-colors duration-500 ${
+                isDarkMode ? "text-white" : "text-gray-900"
+              }`}
+            >
+              {technologiesLabel}
+            </motion.h5>
+
+            <motion.div initial="initial" animate="animate" variants={staggerContainer} className="flex flex-wrap gap-2">
+              {experiences[activeExperience].technologies.map((tech) => (
+                <motion.span
+                  key={tech}
+                  variants={scaleIn}
+                  whileHover={{ scale: 1.05 }}
+                  className={`px-3 py-1 rounded-full text-sm font-medium transition-all duration-500 ${
+                    isDarkMode ? "bg-blue-600/30 text-white" : "bg-blue-100 text-blue-700"
+                  }`}
+                >
+                  {tech}
+                </motion.span>
+              ))}
+            </motion.div>
+          </motion.div>
+        </motion.div>
       </div>
-    </div>
+    </section>
   )
 }
+
+export default forwardRef<HTMLElement, ExperienceProps>(ExperienceSection)

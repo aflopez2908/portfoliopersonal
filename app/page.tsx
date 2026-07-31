@@ -195,6 +195,16 @@ export default function Portfolio() {
           : "Especializado en el análisis y posicionamiento de marca para ofrecer soluciones tecnológicas personalizadas a los clientes. Destaca por el diseño de modelos en Figma para planificar de manera estratégica las aplicaciones.",
       technologies: ["Angular", "JavaScript", "Node.js", "Database", "HTML5", "CSS3", "React", "Python"],
     },
+    {
+      company: "Freelance",
+      period: language === "en" ? "Currently" : "Actualmente",
+      role: language === "en" ? "Full Stack Developer" : "Desarrollador Full Stack",
+      description:
+        language === "en"
+          ? "Specialized in brand analysis and positioning to offer personalized technological solutions to clients. Stands out for designing models in Figma to strategically plan applications."
+          : "Especializado en el análisis y posicionamiento de marca para ofrecer soluciones tecnológicas personalizadas a los clientes. Destaca por el diseño de modelos en Figma para planificar de manera estratégica las aplicaciones.",
+      technologies: ["Angular", "JavaScript", "Node.js", "Database", "HTML5", "CSS3", "React", "Python"],
+    },
   ]
 
   const projects = [
@@ -656,6 +666,16 @@ export default function Portfolio() {
               className="flex flex-col sm:flex-row gap-4 justify-center items-center"
             >
               <motion.button
+                onClick={
+                  () => {
+                    const link = document.createElement("a")
+                    link.href = "/cv.pdf"
+                    link.download = "Felipe_Russi_CV.pdf"
+                    document.body.appendChild(link)
+                    link.click()
+                    document.body.removeChild(link)
+                  }
+                }
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
                 className={`group relative px-8 py-4 rounded-full text-lg font-bold flex items-center gap-2 overflow-hidden text-white ${
@@ -664,8 +684,10 @@ export default function Portfolio() {
                     : "bg-gradient-to-r from-blue-600 to-blue-700 shadow-lg"
                 }`}
               >
+                
                 <Download size={20} />
                 {t("getCv")}
+                
                 <motion.div
                   className="absolute inset-0 bg-white/20 rounded-full"
                   initial={{ scale: 0 }}
@@ -801,9 +823,9 @@ export default function Portfolio() {
                   }`}
                 ></motion.div>
                 <img
-                  src="/placeholder.svg?height=320&width=320"
+                  src="/perfil_image.jpeg?height=220&width=220"
                   alt="Felipe Russi"
-                  className={`relative z-10 w-full h-full object-cover rounded-full border-4 transition-all duration-500 ${
+                  className={`relative z-10 w-full h-full object-cover object-[50%_20%] rounded-full border-4 transition-all duration-500 ${
                     isDarkMode ? "border-white/20" : "border-white shadow-xl"
                   }`}
                 />
